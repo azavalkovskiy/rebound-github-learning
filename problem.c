@@ -12,7 +12,7 @@
  *
  * The example also works with the WHFAST symplectic integrator. We turn
  * off safe-mode to allow fast and accurate simulations with the symplectic
- * corrector. If an output is required, you need to call ireb_integrator_synchronize()
+ * corrector. If an output is required, you need to call reb_integrator_synchronize()
  * before accessing the particle structure.
  */
 #include <stdio.h>
@@ -33,7 +33,7 @@ double ss_pos[6][3] =
 double ss_vel[6][3] =
     {
      {+6.69048890636161e-6, -6.33922479583593e-6, -3.13202145590767e-9}, // Sun
-     {-5.59797969310664e-3, +5.51815399480116e-3, -2.66711392865591e-6}, // Jupiter
+     {-5.59797969310664e-3, +5.51815399480116e-3, -2.66711392865591e-6}, // Jupiter //changed 3 to 6 in y vel
      {-4.17354020307064e-3, +3.99723751748116e-3, +1.67206320571441e-5}, // Saturn
      {-3.25884806151064e-3, +2.06438412905916e-3, -2.17699042180559e-5}, // Uranus
      {-2.17471785045538e-4, -3.11361111025884e-3, +3.58344705491441e-5}, // Neptune
@@ -50,7 +50,8 @@ double ss_mass[6] =
      7.4074074e-09  // Pluto
 };
 
-double tmax = 7.3e7;
+
+double tmax = 7e7;
 
 void heartbeat(struct reb_simulation* const r);
 
@@ -58,16 +59,16 @@ int main(int argc, char* argv[]) {
     struct reb_simulation* r = reb_create_simulation();
     // Setup constants
     const double k = 0.01720209895; // Gaussian constant
-    r->dt = 40;            // in days
+    r->dt = 20;            // in days
     r->G = k * k;            // These are the same units as used by the mercury6 code.
-    r->ri_whfast.safe_mode = 0;     // Turn of safe mode. Need to call integrator_synchronize() before outputs.
-    r->ri_whfast.corrector = 11;    // Turn on symplectic correctors (11th order).
+    //r->ri_whfast.safe_mode = 0;     // Turn of safe mode. Need to call integrator_synchronize() before outputs.
+    //r->ri_whfast.corrector = 11;    // Turn on symplectic correctors (11th order).
 
     // Setup callbacks:
     r->heartbeat = heartbeat;
     r->force_is_velocity_dependent = 0; // Force only depends on positions.
-    r->integrator = REB_INTEGRATOR_WHFAST;
-    //r->integrator    = REB_INTEGRATOR_IAS15;
+    //r->integrator = REB_INTEGRATOR_WHFAST;
+    r->integrator    = REB_INTEGRATOR_IAS15;
 
     // Initial conditions
     for (int i = 0; i < 6; i++) {
@@ -81,22 +82,29 @@ int main(int argc, char* argv[]) {
         p.m = ss_mass[i];
         reb_add(r, p);
     }
-
+    
     reb_move_to_com(r);
 
-    r->N_active = r->N - 1; // Pluto is treated as a test-particle.
+    r->N_active = r->N - 1; // Pluto is treated as a test-particle. <- ask this to Dr. K.
 
     double e_initial = reb_tools_energy(r);
 
     // Start integration
     reb_integrate(r, tmax);
-
     double e_final = reb_tools_energy(r);
+    //reb_integrator_synchronize(r);
     printf("Done. Final time: %.4f. Relative energy error: %e\n", r->t, fabs((e_final - e_initial) / e_initial));
 }
 
 void heartbeat(struct reb_simulation* const r) {
-    if (reb_output_check(r, 10000000.)) {
+    if (reb_output_check(r, 10000000.)) { 
         reb_output_timing(r, tmax);
     }
+    const struct reb_particle* const particles = r->particles; //get particles from r
+    struct reb_orbit o1=reb_tools_particle_to_orbit(r->G, particles[1], particles[0]);
+
+    FILE* f = fopen("r.txt","a");
+    fprintf(f,"%e %e\n",r->t, o1.e);
+    fclose(f);
+    //goal for next time, generalized output,
 }

@@ -1,4 +1,4 @@
-export OPENGL=1
+export OPENGL=0
 include ../../src/Makefile.defs
 
 all: librebound
@@ -19,4 +19,4 @@ clean:
 	@-rm -f librebound.so
 	$(MAKE) -C ../../src/ clean
 	@echo "Cleaning up local directory ..."
-@-rm -vf rebound
+	@-rm -vf rebound
