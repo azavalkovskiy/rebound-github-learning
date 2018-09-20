@@ -1,2 +1,7 @@
 # rebound-github-learning
-Repository that I'm using to get familiar with github and REBOUND(simulator).This readme will be updated as needed. Since this is being used for personal learning, I won't do anything with it yet.
+I'm currently using the repository for two things. I will mostly be doing simple work involving the REBOUND N-body simulation software. I will also be learning the basics of using GitHub.
+
+Much of the code that's found here can be found in it's original form [here.](https://github.com/hannorein/rebound)
+
+# planned changes
+After I get a grasp of how version control works in GitHub, I'll make a changelog to keep track of my progress.
