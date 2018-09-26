@@ -100,11 +100,6 @@ void heartbeat(struct reb_simulation* const r) {
     if (reb_output_check(r, 10000000.)) { 
         reb_output_timing(r, tmax);
     }
-    const struct reb_particle* const particles = r->particles; //get particles from r
-    struct reb_orbit o1=reb_tools_particle_to_orbit(r->G, particles[1], particles[0]);
-
-    FILE* f = fopen("r.txt","a");
-    fprintf(f,"%e %e\n",r->t, o1.e);
-    fclose(f);
-    //goal for next time, generalized output,
+    //const struct reb_particle* const particles = r->particles; //get particles from r
+    reb_output_orbits(r, "r.txt");
 }
